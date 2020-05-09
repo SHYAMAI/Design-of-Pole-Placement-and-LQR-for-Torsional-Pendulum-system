@@ -1,0 +1,193 @@
+MATLAB CODE:
+clc
+clear all
+close all
+ 
+%SYSTEM MATRICES FOR THE TORSIONAL SYSTEM
+A=[0 0 1 0;0 0 0 1;-457.875 457.875 -6.868 0;1833.584 -1833.584 0 -7.334]
+B=[0;0;1833.584;0]
+C=[1 0 0 0;0 1 0 0]
+D=[0]  
+Q = diag ([60.0344 8.7682 0.4241 0.001])
+R = 4500
+sys=ss(A,B,C,D)%STATE SPACE MODEL
+%OPEN LOOP RESPONSE OF THE SYSTEM
+figure
+step(sys),title('Step response of the open loop system'),xlabel('Time'),ylabel('Amplitude(volt)')
+ 
+%POLE PLACEMENT WITHOUT OBSERVER
+P1 = -2;
+P2 = -4;
+P3 = -8;
+P4 = -10;
+P = [P1 P2 P3 P4];
+K1 = place(A,B,P);
+A_cl = A-(B*K1) 
+sys_cl = ss(A_cl,B,C,D)
+figure
+step(sys_cl),title('Step response of the closed loop system (Pole placement without observer'),xlabel('Time'),ylabel('Amplitude(volt)')
+%POLE PLACEMENT WITH OBSERVER
+P1 = -200;%DOMINANT POLES
+P2 = -400;
+P3 = -800;
+P4 = -1000;
+P = [P1 P2 P3 P4];
+K1 = place(A,B,P);
+A_cl = A-(B*K1) 
+sys_cl = ss(A_cl,B,C,D)
+figure
+step(sys_cl),title('Step response of the closed loop system (Pole placement with observer)'),xlabel('Time'),ylabel('Amplitude(volt)')
+%LINEAR QUADRATIC REGULATOR WITHOUT OBSERVER
+K2 = lqr(A,B,Q,R);
+Ac = [(A-B*K2)];
+Bc = [B];
+Cc = [C];
+Dc = [D];
+sys_cl = ss(Ac,Bc,Cc,Dc);
+figure
+step(sys_cl),title('Step response of the closed loop system (Linear quadratic regulator without observer)'),xlabel('Time'),ylabel('Amplitude(volt)')
+%LINEAR QUADRATIC REGULATOR WITH OBSERVER
+q = diag ([0.0344 0.7682 4.241 0.001]);
+r1 = 45;
+K2 = lqr(A,B,q,r1);
+Ac = [(A-B*K2)];
+Bc = [B];
+Cc = [C];
+Dc = [D];
+sys_cl = ss(Ac,Bc,Cc,Dc);
+figure
+step(sys_cl),title('Step response of the closed loop system (Linear quadratic regulator with observer)'),xlabel('Time'),ylabel('Amplitude(volt)')
+ 
+%END OF THE PROGRAM
+
+
+OUTPUT:
+
+A =
+    1.0e+03 *
+
+         0         0             0.0010         0
+         0         0                0          0.0010
+   -0.4579    0.4579   -0.0069         0
+    1.8336   -1.8336         0        -0.0073
+
+B =
+   1.0e+03 *
+
+         0
+         0
+    1.8336
+         0
+
+C =
+     1     0     0     0
+     0     1     0     0
+
+D = 0
+Q =
+
+   60.0344         0             0              0
+         0        8.7682          0              0
+         0              0         0.4241         0
+         0              0             0         0.0010
+R =
+        4500
+
+
+sys =
+  a = 
+           x1      x2      x3      x4
+   x1       0       0       1       0
+   x2       0       0       0       1
+   x3  -457.9   457.9  -6.868       0
+   x4    1834   -1834       0  -7.334
+ 
+  b = 
+          u1
+   x1     0
+   x2     0
+   x3  1834
+   x4     0
+  c = 
+       x1  x2  x3  x4
+   y1   1   0   0   0
+   y2   0   1   0   0
+ 
+  d = 
+       u1
+   y1   0
+   y2   0
+
+Continuous-time state-space model.
+
+
+A_cl =
+   1.0e+03 *
+
+         0         0           0.0010         0
+         0         0                 0         0.0010
+    1.7598   -1.7602   -0.0167    0.0093
+    1.8336   -1.8336         0        -0.0073
+
+sys_cl =
+  a = 
+           x1      x2      x3      x4
+   x1       0       0       1       0
+   x2       0       0       0       1
+   x3    1760   -1760  -16.67   9.287
+   x4    1834   -1834       0  -7.334
+b = 
+         u1
+   x1     0
+   x2     0
+   x3  1834
+   x4     0
+ 
+  c = 
+       x1  x2  x3  x4
+   y1   1   0   0   0
+   y2   0   1   0   0
+ 
+  d = 
+       u1
+   y1   0
+   y2   0
+Continuous-time state-space model.
+
+
+A_cl =
+   1.0e+07 *
+
+         0         0             0.0000         0
+         0         0                0           0.0000
+   -0.1941   -3.2964   -0.0002   -0.0330
+    0.0002   -0.0002         0        -0.0000
+
+sys_cl =
+  a =                x1              x2             x3          x4
+   x1           0                0              1             0
+   x2           0                0               0            1
+   x3  -1.941e+06  -3.296e+07  -2393   -3.302e+05
+   x4        1834       -1834              0        -7.334
+ 
+
+
+  b = 
+         u1
+   x1     0
+   x2     0
+   x3  1834
+   x4     0
+
+c = 
+       x1  x2  x3  x4
+   y1   1   0   0   0
+   y2   0   1   0   0
+ 
+  d = 
+       u1
+   y1   0
+   y2   0
+
+
+
